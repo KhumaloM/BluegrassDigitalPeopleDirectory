@@ -117,7 +117,7 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Address,MobileNumber,EmailAddress,ProfilePictureFile,GenderId,CountryId,CityId")] PersonUpdateViewModel personViewModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Address,MobileNumber,EmailAddress,ProfilePictureFile,GenderId,CountryId,CityId,PersonProfilePictureId")] PersonUpdateViewModel personViewModel)
         {
             if (id != personViewModel.Id)
             {
@@ -135,6 +135,10 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
                 _peopleDirectoryRepository.UpdatePersonProfilePicture(picture);
                 profilePicId = picture.Id;
             }
+            else
+            {
+                profilePicId = personViewModel.PersonProfilePictureId;
+            }
 
             var person = new Person();
             person.Id = personViewModel.Id;
@@ -148,52 +152,40 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
             person.CountryId = personViewModel.CountryId;
             person.CityId = personViewModel.CityId;
 
-            _peopleDirectoryRepository.UpdatePerson(person);
+            await _peopleDirectoryRepository.UpdatePerson(person);
 
 
             return RedirectToAction("Index", "Admin");
         }
 
-        //// GET: Admin/Delete/5
-        //public async Task<IActionResult> Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // GET: Admin/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var person = _peopleDirectoryRepository.GetPersonById(Convert.ToInt32(id));
+            if (person == null)
+            {
+                return NotFound();
+            }
 
-        //    var person = await _context.People
-        //        .Include(p => p.City)
-        //        .Include(p => p.Country)
-        //        .Include(p => p.Gender)
-        //        .Include(p => p.ProfilePicture)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (person == null)
-        //    {
-        //        return NotFound();
-        //    }
+            return View(person);
+        }
 
-        //    return View(person);
-        //}
-
-        //// POST: Admin/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var person = await _context.People.FindAsync(id);
-        //    if (person != null)
-        //    {
-        //        _context.People.Remove(person);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        //private bool PersonExists(int id)
-        //{
-        //    return _context.People.Any(e => e.Id == id);
-        //}
+        // POST: Admin/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var person = _peopleDirectoryRepository.GetPersonById(Convert.ToInt32(id));
+            if (person == null)
+            {
+                return NotFound();
+            }
+            _peopleDirectoryRepository.DeletePerson(person);
+            return RedirectToAction("Index", "Admin");
+        }
     }
 }

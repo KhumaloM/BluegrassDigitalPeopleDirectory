@@ -1,7 +1,11 @@
 ﻿using BluegrassDigitalPeopleDirectory.Data;
 using BluegrassDigitalPeopleDirectory.Models;
 using BluegrassDigitalPeopleDirectory.Repositories.Contracts;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MimeKit;
 using System;
 
 namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
@@ -9,9 +13,11 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
     public class PeopleDirectoryRepository : IPeopleDirectoryRepository
     {
         private readonly ApplicationDbContext _dbContext;
-        public PeopleDirectoryRepository(ApplicationDbContext dbContext)
+        private readonly MailSettings _mailSettings;
+        public PeopleDirectoryRepository(ApplicationDbContext dbContext, IOptions<MailSettings> mailSettings)
         {
             _dbContext = dbContext;
+            _mailSettings = mailSettings.Value;
         }
         public IQueryable<Person> GetPeopleDirectory()
         {
@@ -55,13 +61,13 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
             return ProfilePic.Id;
         }
 
-        public bool UpdatePerson(Person person)
+        public async Task<bool> UpdatePerson(Person person)
         {
             _dbContext.Update(person);
             _dbContext.ChangeTracker.DetectChanges();
             var getChanges = _dbContext.ChangeTracker.DebugView.LongView; //use change tracker to track the changes made and send email to mark@bluegrassdigital.com
-
-            return _dbContext.SaveChanges() > 0;
+            await SendPeopleupdateEmailAsync(getChanges);
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
         public bool UpdatePersonProfilePicture(PersonProfilePicture personProfilePicture)
@@ -69,5 +75,33 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
             _dbContext.Update(personProfilePicture);
             return _dbContext.SaveChanges() > 0;
         }
+
+        public async Task SendPeopleupdateEmailAsync(string mailBody)
+        {
+            MailRequest mailRequest = new MailRequest();
+            mailRequest.ToEmail = "khumalom@gmail.com";
+            mailRequest.Subject = "an update has been made to the People Directory. Below are the changes";
+            mailRequest.Body = mailBody;
+
+
+            var email = new MimeMessage();
+            email.Sender = MailboxAddress.Parse(_mailSettings.Mail);
+            email.To.Add(MailboxAddress.Parse(mailRequest.ToEmail));
+            email.Subject = mailRequest.Subject;
+            var builder = new BodyBuilder();
+            builder.HtmlBody = mailRequest.Body;
+            email.Body = builder.ToMessageBody();
+            using var smtp = new SmtpClient();
+            smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+            smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
+            await smtp.SendAsync(email);
+            smtp.Disconnect(true);
+        }
+
+        public void DeletePerson(Person person)
+        {
+            _dbContext.People.Remove(person);
+            _dbContext.SaveChanges();
+    }
     }
 }

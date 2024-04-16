@@ -1,10 +1,12 @@
 using AutoMapper;
 using BluegrassDigitalPeopleDirectory.automapper;
 using BluegrassDigitalPeopleDirectory.Data;
+using BluegrassDigitalPeopleDirectory.Models;
 using BluegrassDigitalPeopleDirectory.Repositories.Contracts;
 using BluegrassDigitalPeopleDirectory.Repositories.Implementations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,8 @@ var mapperConfig = new MapperConfiguration(mc =>
 
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
+
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
