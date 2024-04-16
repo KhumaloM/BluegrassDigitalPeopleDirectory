@@ -26,5 +26,10 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
         {
             return _dbContext.Genders.ToList();
         }
+
+        public IList<City> GetCitiesByCountryId(int CountryId)
+        {
+            return _dbContext.Cities.Where(x => x.CountryId == CountryId).ToList();
+        }
     }
 }

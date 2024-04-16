@@ -79,8 +79,8 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
         public async Task SendPeopleupdateEmailAsync(string mailBody)
         {
             MailRequest mailRequest = new MailRequest();
-            mailRequest.ToEmail = "khumalom@gmail.com";
-            mailRequest.Subject = "an update has been made to the People Directory. Below are the changes";
+            mailRequest.ToEmail = "mark@bluegrassdigital.com";
+            mailRequest.Subject = "An update has been made to the People Directory. Below are the changes";
             mailRequest.Body = mailBody;
 
 

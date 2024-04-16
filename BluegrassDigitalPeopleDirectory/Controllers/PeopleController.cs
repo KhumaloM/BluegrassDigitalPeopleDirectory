@@ -16,17 +16,29 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
     public class PeopleController : ControllerBase
     {
         private readonly IPeopleDirectoryRepository _peopleDirectoryRepository;
-        public PeopleController(IPeopleDirectoryRepository peopleDirectoryRepository)
+        private readonly ILookupRepository _lookupRepository;
+        public PeopleController(IPeopleDirectoryRepository peopleDirectoryRepository, ILookupRepository lookupRepository)
         {
             _peopleDirectoryRepository = peopleDirectoryRepository;
+            _lookupRepository = lookupRepository;
         }
 
-        // GET: api/People
+        // GET: api/People/GetPeople
         [HttpGet]
+        [Route("GetPeople")]
         public IActionResult GetPeople()
         {
             var peopleDirectory = _peopleDirectoryRepository.GetPeopleDirectory();
             return Ok(peopleDirectory);
+        }
+
+        // GET: api/People/GetCitiesByCountryId
+        [HttpGet]
+        [Route("GetCitiesByCountryId")]
+        public IActionResult GetCitiesByCountryId(int CountryId)
+        {
+            var citiesByCountry = _lookupRepository.GetCitiesByCountryId(CountryId);
+            return Ok(citiesByCountry);
         }
     }
 }

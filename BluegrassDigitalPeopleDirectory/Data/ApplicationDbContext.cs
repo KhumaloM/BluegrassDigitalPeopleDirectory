@@ -34,7 +34,7 @@ namespace BluegrassDigitalPeopleDirectory.Data
             );
 
             modelBuilder.Entity<City>().HasData(
-                new City { Id = 1, Name = "Johannesburg" }
+                new City { Id = 1, Name = "Johannesburg", CountryId = 1 }
             );
 
             modelBuilder.Entity<Country>().HasData(

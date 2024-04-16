@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BluegrassDigitalPeopleDirectory.Data.migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240416070839_peopledirectory4")]
-    partial class peopledirectory4
+    [Migration("20240416093029_peopledirectory2")]
+    partial class peopledirectory2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,9 @@ namespace BluegrassDigitalPeopleDirectory.Data.migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -45,6 +48,7 @@ namespace BluegrassDigitalPeopleDirectory.Data.migrations
                         new
                         {
                             Id = 1,
+                            CountryId = 1,
                             Name = "Johannesburg"
                         });
                 });

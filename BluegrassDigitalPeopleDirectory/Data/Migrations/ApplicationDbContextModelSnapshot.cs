@@ -30,6 +30,9 @@ namespace BluegrassDigitalPeopleDirectory.Data.migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -42,6 +45,7 @@ namespace BluegrassDigitalPeopleDirectory.Data.migrations
                         new
                         {
                             Id = 1,
+                            CountryId = 1,
                             Name = "Johannesburg"
                         });
                 });

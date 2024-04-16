@@ -7,5 +7,7 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Contracts
         IList<Country> GetAllCountries();
         IList<City> GetAllCities();
         IList<Gender> GetAllGenders();
+
+        IList<City> GetCitiesByCountryId(int countryId);
     }
 }

@@ -36,7 +36,7 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
         // GET: Admin/Create
         public IActionResult Create()
         {
-            ViewData["CityId"] = new SelectList(_lookupRepository.GetAllCities(), "Id", "Name");
+            //ViewData["CityId"] = new SelectList(_lookupRepository.GetAllCities(), "Id", "Name");
             ViewData["CountryId"] = new SelectList(_lookupRepository.GetAllCountries(), "Id", "Name");
             ViewData["GenderId"] = new SelectList(_lookupRepository.GetAllGenders(), "Id", "Name");
             return View();
@@ -185,7 +185,7 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
                 return NotFound();
             }
             _peopleDirectoryRepository.DeletePerson(person);
-            return RedirectToAction("Index", "Admin");
+              return RedirectToAction("Index", "Admin");
         }
     }
 }
