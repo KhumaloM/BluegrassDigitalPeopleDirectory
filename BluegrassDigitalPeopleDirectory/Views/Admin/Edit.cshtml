@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -53,9 +53,12 @@
                 <span asp-validation-for="CityId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PersonProfilePictureId" class="control-label"></label>
-                <select asp-for="PersonProfilePictureId" class="form-control" asp-items="ViewBag.PersonProfilePictureId"></select>
-                <span asp-validation-for="PersonProfilePictureId" class="text-danger"></span>
+                @if (!string.IsNullOrEmpty(ViewData["ProfilePicture"].ToString()))
+                {
+                    <img src="data:@ViewData["pictureFormat"];base64,@ViewData["ProfilePicture"].ToString()" />
+                }
+                <label asp-for="ProfilePictureFile" class="control-label">Profile Picture</label>
+                <input asp-for="ProfilePictureFile" accept="image/*" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

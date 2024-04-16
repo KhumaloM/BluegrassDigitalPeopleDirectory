@@ -54,5 +54,20 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Implementations
             await _dbContext.SaveChangesAsync();
             return ProfilePic.Id;
         }
+
+        public bool UpdatePerson(Person person)
+        {
+            _dbContext.Update(person);
+            _dbContext.ChangeTracker.DetectChanges();
+            var getChanges = _dbContext.ChangeTracker.DebugView.LongView; //use change tracker to track the changes made and send email to mark@bluegrassdigital.com
+
+            return _dbContext.SaveChanges() > 0;
+        }
+
+        public bool UpdatePersonProfilePicture(PersonProfilePicture personProfilePicture)
+        {
+            _dbContext.Update(personProfilePicture);
+            return _dbContext.SaveChanges() > 0;
+        }
     }
 }

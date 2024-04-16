@@ -7,7 +7,8 @@ namespace BluegrassDigitalPeopleDirectory.Repositories.Contracts
         IQueryable<Person> GetPeopleDirectory(); 
         Task<bool> AddPerson(Person person);
         //void RemovePerson(Person person);
-        //void UpdatePerson(Person person);
+        bool UpdatePerson(Person person);
+        bool UpdatePersonProfilePicture(PersonProfilePicture personProfilePicture);
         Person? GetPersonById(int Id);
         Country? GetPersonCountryById(int Id);
         City? GetPersonCityById(int Id);

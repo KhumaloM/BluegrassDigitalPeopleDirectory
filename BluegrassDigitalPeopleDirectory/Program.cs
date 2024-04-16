@@ -1,3 +1,5 @@
+using AutoMapper;
+using BluegrassDigitalPeopleDirectory.automapper;
 using BluegrassDigitalPeopleDirectory.Data;
 using BluegrassDigitalPeopleDirectory.Repositories.Contracts;
 using BluegrassDigitalPeopleDirectory.Repositories.Implementations;
@@ -7,12 +9,21 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAutoMapper(typeof(Program));
 var connectionString = builder.Configuration.GetConnectionString("PeopleDirectoryConnectionstring") ?? throw new InvalidOperationException("Connection string 'PeopleDirectoryConnectionstring' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IPeopleDirectoryRepository, PeopleDirectoryRepository>();
 builder.Services.AddScoped<ILookupRepository, LookupRepository>();
+
+var mapperConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new MappingProfile());
+});
+
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

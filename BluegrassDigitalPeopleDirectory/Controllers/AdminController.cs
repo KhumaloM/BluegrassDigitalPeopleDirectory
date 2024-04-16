@@ -10,6 +10,7 @@ using BluegrassDigitalPeopleDirectory.Models;
 using BluegrassDigitalPeopleDirectory.Repositories.Contracts;
 using BluegrassDigitalPeopleDirectory.Repositories.Implementations;
 using BluegrassDigitalPeopleDirectory.ViewModels;
+using AutoMapper;
 
 namespace BluegrassDigitalPeopleDirectory.Controllers
 {
@@ -17,10 +18,12 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
     {
         private readonly IPeopleDirectoryRepository _peopleDirectoryRepository;
         private readonly ILookupRepository _lookupRepository;
-        public AdminController(IPeopleDirectoryRepository peopleDirectoryRepository, ILookupRepository lookupRepository)
+        private readonly IMapper _mapper;
+        public AdminController(IPeopleDirectoryRepository peopleDirectoryRepository, ILookupRepository lookupRepository, IMapper mapper)
         {
             _peopleDirectoryRepository = peopleDirectoryRepository;
             _lookupRepository = lookupRepository;
+            _mapper = mapper;
         }
 
         // GET: Admin
@@ -105,47 +108,51 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
             ViewData["pictureFormat"] = pictureFormat;
 
             //map Person to PersonUpdateViewModel
-            return View(person);
+            var viewModel = _mapper.Map<PersonUpdateViewModel>(person);
+            return View(viewModel);
         }
 
         // POST: Admin/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Address,MobileNumber,EmailAddress,PersonProfilePictureId,GenderId,CountryId,CityId")] Person person)
-        //{
-        //    if (id != person.Id)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Surname,Address,MobileNumber,EmailAddress,ProfilePictureFile,GenderId,CountryId,CityId")] PersonUpdateViewModel personViewModel)
+        {
+            if (id != personViewModel.Id)
+            {
+                return NotFound();
+            }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(person);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!PersonExists(person.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", person.CityId);
-        //    ViewData["CountryId"] = new SelectList(_context.Countries, "Id", "Name", person.CountryId);
-        //    ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", person.GenderId);
-        //    ViewData["PersonProfilePictureId"] = new SelectList(_context.ProfilePictures, "Id", "Id", person.PersonProfilePictureId);
-        //    return View(person);
-        //}
+            int? profilePicId = null;
+            if (personViewModel.ProfilePictureFile != null)
+            {
+                var memoryStream = new MemoryStream();
+                personViewModel.ProfilePictureFile.CopyTo(memoryStream);
+                PersonProfilePicture picture = new PersonProfilePicture();
+                picture.ProfilePicture = memoryStream.ToArray();
+                picture.PictureFormat = personViewModel.ProfilePictureFile.ContentType;
+                _peopleDirectoryRepository.UpdatePersonProfilePicture(picture);
+                profilePicId = picture.Id;
+            }
+
+            var person = new Person();
+            person.Id = personViewModel.Id;
+            person.Name = personViewModel.Name;
+            person.Surname = personViewModel.Surname;
+            person.GenderId = personViewModel.GenderId;
+            person.Address = personViewModel.Address;
+            person.MobileNumber = personViewModel.MobileNumber;
+            person.EmailAddress = personViewModel.EmailAddress;
+            person.PersonProfilePictureId = profilePicId;
+            person.CountryId = personViewModel.CountryId;
+            person.CityId = personViewModel.CityId;
+
+            _peopleDirectoryRepository.UpdatePerson(person);
+
+
+            return RedirectToAction("Index", "Admin");
+        }
 
         //// GET: Admin/Delete/5
         //public async Task<IActionResult> Delete(int? id)
