@@ -1,0 +1,67 @@
+﻿@model IQueryable<Person>
+@{
+    ViewData["Title"] = "Home Page";
+}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="~/css/site.css">
+<script>
+    $(document).ready(function () {
+        $(function () {
+            var apiurl = "/api/People"
+            var peopleDirectoryNames = [];
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: apiurl,
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        peopleDirectoryNames.push(result[i].name + " " + result[i].surname);
+                    }
+                }
+            });
+
+            $("#txtsearch").autocomplete({
+                source: peopleDirectoryNames
+            });
+        });
+
+        $("#btnSearch").click(function () {
+            var searchBoxValue = $("#txtsearch").val().toLowerCase();
+            $("#searchresults tr").filter(function () {
+                var gridValue = $(this).find("td:eq(0)").text() + " " + $(this).find("td:eq(1)").text(); //combine name and surname and use them to filter/toggle the search results
+                $(this).toggle(gridValue.toLowerCase().indexOf(searchBoxValue) > -1);
+            });
+        });
+    });
+</script>
+<div class="text-center">
+    <div class="ui-widget">
+        <label for="tags">Search: </label>
+        <input id="txtsearch">
+        <input id="btnSearch" type="submit" value="Search" />
+        <br><br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Mobile Number</th>
+                </tr>
+            </thead>
+            <tbody id="searchresults">
+                @foreach (var person in Model)
+                {
+                    <tr>
+                        <td><a href="@Url.Action("Persondetails", "Home", new {id = person.Id})">@person.Name</a></td><!--Id must be encode and decode the Id for security : Not in scope -->
+                        <td>@person.Surname</td>
+                        <td>@person.EmailAddress</td>
+                        <td>@person.Address</td>
+                        <td>@person.MobileNumber</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
