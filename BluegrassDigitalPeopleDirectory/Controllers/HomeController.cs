@@ -1,7 +1,9 @@
 using BluegrassDigitalPeopleDirectory.Models;
 using BluegrassDigitalPeopleDirectory.Repositories.Contracts;
+using BluegrassDigitalPeopleDirectory.Repositories.Implementations;
 using BluegrassDigitalPeopleDirectory.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
 
 namespace BluegrassDigitalPeopleDirectory.Controllers
@@ -17,7 +19,25 @@ namespace BluegrassDigitalPeopleDirectory.Controllers
         public IActionResult Index()
         {
             var directoryPeople = _peopleDirectoryRepository.GetPeopleDirectory(); //get all directory people
-            return View(directoryPeople);
+            List<SelectListItem> countriesList = new List<SelectListItem>();
+            List<SelectListItem> citiesList = new List<SelectListItem>();
+            foreach (var person in directoryPeople)
+            {
+                //these will be used to filter the grid results
+                if (!countriesList.Exists(x => x.Value == person.Country.Id.ToString()))
+                {
+                    countriesList.Add(new SelectListItem { Text = person.Country.Name, Value = person.Country.Id.ToString() });
+                }
+                if (!citiesList.Exists(x => x.Value == person.City.Id.ToString()))
+                {
+                    citiesList.Add(new SelectListItem { Text = person.City.Name, Value = person.City.Id.ToString() });
+                }
+            }
+            PeopleDirectorySearchViewModel viewModel = new PeopleDirectorySearchViewModel();
+            viewModel.People = directoryPeople;
+            viewModel.CitiesList = citiesList;
+            viewModel.CountriesList = countriesList;
+            return View(viewModel);
         }
 
         public IActionResult Persondetails(int id)

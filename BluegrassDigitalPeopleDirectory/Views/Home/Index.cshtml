@@ -1,4 +1,4 @@
-﻿@model IQueryable<Person>
+﻿@model BluegrassDigitalPeopleDirectory.ViewModels.PeopleDirectorySearchViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -27,18 +27,84 @@
 
         $("#btnSearch").click(function () {
             var searchBoxValue = $("#txtsearch").val().toLowerCase();
+            var selectedCountry = $("#countryfilter option:selected").text().toLowerCase();
+            var selectedCity = $("#cityfilter option:selected").text().toLowerCase();
+
+            var selectedCityValue = $("#cityfilter option:selected").val().toLowerCase();
+            var selectedCountryValue = $("#countryfilter option:selected").val().toLowerCase();
+
             $("#searchresults tr").filter(function () {
-                var gridValue = $(this).find("td:eq(0)").text() + " " + $(this).find("td:eq(1)").text(); //combine name and surname and use them to filter/toggle the search results
+                var gridValue = $(this).find("td:eq(0)").text() + " " + $(this).find("td:eq(1)").text();
+                if (selectedCountryValue != -1) { 
+                    gridValue = gridValue + " " + $(this).find("td:eq(3)").text();
+                }
+                if (selectedCityValue != -1) {
+                    gridValue = gridValue + " " + $(this).find("td:eq(4)").text();
+                }
                 $(this).toggle(gridValue.toLowerCase().indexOf(searchBoxValue) > -1);
+            });
+        });
+
+        $("#countryfilter").change(function () {
+            var selectedCountry = $("#countryfilter option:selected").text().toLowerCase();
+
+            var selectedCityValue = $("#cityfilter option:selected").val().toLowerCase();
+            var selectedCity = $("#cityfilter option:selected").text().toLowerCase();
+            if (selectedCityValue != -1) {
+                selectedCountry = selectedCountry + " " + selectedCity;
+            }
+            $("#searchresults tr").filter(function () {
+                var gridValue = $(this).find("td:eq(3)").text();
+                if (selectedCityValue != -1) {
+                    gridValue = gridValue + " " + $(this).find("td:eq(4)").text().toLowerCase();
+                }
+                $(this).toggle(gridValue.toLowerCase().indexOf(selectedCountry) > -1);
+            });
+        });
+
+        $("#cityfilter").change(function () {
+            var selectedCity= $("#cityfilter option:selected").text().toLowerCase();
+
+            var selectedCountryValue = $("#countryfilter option:selected").val().toLowerCase();
+            var selectedCountry = $("#countryfilter option:selected").text().toLowerCase();
+            if (selectedCountryValue != -1) {
+                selectedCity = selectedCountry + " " + selectedCity;
+            }
+            $("#searchresults tr").filter(function () {
+                var gridValue = $(this).find("td:eq(4)").text();
+                if (selectedCountryValue != -1)
+                {
+                    gridValue = $(this).find("td:eq(3)").text().toLowerCase() + " " + gridValue;
+                }
+                $(this).toggle(gridValue.toLowerCase().indexOf(selectedCity) > -1);
             });
         });
     });
 </script>
 <div class="text-center">
     <div class="ui-widget">
-        <label for="tags">Search: </label>
-        <input id="txtsearch">
-        <input id="btnSearch" type="submit" value="Search" />
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <select class="form-control" asp-items="@Model.CountriesList" id="countryfilter">
+                        <option selected value="-1">Filter by Country</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" asp-items="@Model.CitiesList" id="cityfilter">
+                        <option selected value="-1">Filter by City</option>
+                    </select>
+                </div>
+                </br>
+                </br>
+                </br>
+                <div class="form-group">
+                    <label for="txtsearch">Search: </label>
+                    <input id="txtsearch">
+                    <input id="btnSearch" type="submit" value="Search" />
+                </div>
+            </div>
+        </div>
         <br><br>
         <table>
             <thead>
@@ -46,19 +112,19 @@
                     <th>Firstname</th>
                     <th>Lastname</th>
                     <th>Email</th>
-                    <th>Address</th>
-                    <th>Mobile Number</th>
+                    <th>Country</th>
+                    <th>City</th>
                 </tr>
             </thead>
             <tbody id="searchresults">
-                @foreach (var person in Model)
+                @foreach (var person in Model.People)
                 {
                     <tr>
                         <td><a href="@Url.Action("Persondetails", "Home", new {id = person.Id})">@person.Name</a></td><!--Id must be encode and decode the Id for security : Not in scope -->
                         <td>@person.Surname</td>
                         <td>@person.EmailAddress</td>
-                        <td>@person.Address</td>
-                        <td>@person.MobileNumber</td>
+                        <td>@person.Country.Name</td>
+                        <td>@person.City.Name</td>
                     </tr>
                 }
             </tbody>
