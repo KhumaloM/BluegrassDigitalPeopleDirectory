@@ -17,7 +17,7 @@
             source: peopleDirectoryNames
         });
     });
-
+    //search button logic in home page
     $("#btnSearch").click(function () {
         var searchBoxValue = $("#txtsearch").val().toLowerCase();
         var selectedCountry = $("#countryfilter option:selected").text().toLowerCase();
@@ -37,7 +37,7 @@
             $(this).toggle(gridValue.toLowerCase().indexOf(searchBoxValue) > -1);
         });
     });
-
+    //country filter in home page
     $("#countryfilter").change(function () {
         var selectedCountry = $("#countryfilter option:selected").text().toLowerCase();
 
@@ -54,7 +54,7 @@
             $(this).toggle(gridValue.toLowerCase().indexOf(selectedCountry) > -1);
         });
     });
-
+    //city filter in homepage
     $("#cityfilter").change(function () {
         var selectedCity = $("#cityfilter option:selected").text().toLowerCase();
 
@@ -75,16 +75,15 @@
     //populate the city dropdown when country is selected
     $("#CountryId").change(function () {
         var CountryId = parseInt($(this).val());
-
         if (!isNaN(CountryId)) {
-            var CityId = $('#CityId');
-            CityId.empty();
             $.ajax({
                 url: '/api/People/GetCitiesByCountryId',
                 type: 'GET',
                 dataType: 'json',
                 data: { CountryId: CountryId },
                 success: function (d) {
+                    var CityId = $('#CityId');
+                    CityId.empty();
                     $.each(d, function (i, city) {
                         CityId.append($("<option></option>").val(city.id).html(city.name));
                     });
