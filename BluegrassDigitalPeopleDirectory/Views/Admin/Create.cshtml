@@ -4,37 +4,6 @@
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script>
-    $(document).ready(function () {
-        //populate the city dropdown when country is selected
-        $("#CountryId").change(function () {
-            var CountryId = parseInt($(this).val());
-
-            if (!isNaN(CountryId)) {
-                var CityId = $('#CityId');
-                CityId.empty();
-                $.ajax({
-                    url: '/api/People/GetCitiesByCountryId',
-                    type: 'GET',
-                    dataType: 'json',
-                    data: { CountryId: CountryId },
-                    success: function (d) {
-                        $.each(d, function (i, city) {
-                            CityId.append($("<option></option>").val(city.id).html(city.name));
-                        });
-                    },
-                    error: function () {
-                        alert('Error!');
-                    }
-                });
-            }
-            else {
-                var CityId = $('#CityId');
-                CityId.empty();
-            }
-        });
-    });
-</script>
 <h1>Add New Person</h1>
 <hr />
 <div class="row">
